@@ -3,7 +3,8 @@ Create a Date Table for all Data in Redshift
 Columns are as follows:
 
 Column Name | Data Type | Description
-timestampID | smallint | Primary Key. Each row represents 5 minute chunks of time
+timestampID | timestamp | Primary Key. Each row represents 5 minute chunks of time
+timstampfloor | timestamp | floor value of timestamp (to the start of the hour)
 CALDATE | date | calendar date 2020-01-01
 CALHOUR | smallint | hour of day
 DAY | CHAR(3) | day of week (MO, TU etc)

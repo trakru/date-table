@@ -1,15 +1,10 @@
 import datetime
 import pandas as pd
-import sys
 import argparse
+from pandas.tseries.holiday import USFederalHolidayCalendar as holiday_calendar
+from pathlib import Path
 
-def create_calendar(start,end):
-    message = f'start:{start} end:{end}'
-    print(message)
-# dti = pd.date_range()
-
-# start = sys.argv[1]
-# end = sys.argv[2]
+p = Path(Path().resolve().parent, "data", "date-table.csv")
 
 parser = argparse.ArgumentParser(description='Provide Start & End dates')
 
@@ -24,13 +19,30 @@ parser.add_argument('-e', "--enddate",
 
 args = parser.parse_args()
 
-start = args.startdate
-end = args.enddate
+startdate = args.startdate
+enddate = args.enddate
 
-# create_calendar(start, end)
+def create_calendar(start,end):
+    cal = holiday_calendar()
+    holidays = cal.holidays(start=startdate, end=enddate)
+    holidays=holidays.date
+    weekends = ['5', '6']
+    dti = pd.date_range(startdate, enddate, freq='5 Min')
+    df = pd.DataFrame(dti)
+    df.columns=['timestampID']
+    df['caldate'] = df.timestampID.dt.date
+    df['calhour'] = df.timestampID.dt.hour
+    df['dayofyear'] = df.timestampID.dt.dayofyear
+    df['dayofweek'] = df.timestampID.dt.dayofweek
+    df['month'] = df.timestampID.dt.month
+    df['year'] = df.timestampID.dt.year
+    df['week'] = df.timestampID.dt.isocalendar().week
+    df['quarter'] = df.timestampID.dt.quarter
+    df['holiday'] = df.caldate.isin(holidays)
+    df['weekend'] = df.dayofweek.isin(weekends)
+    # print(df[df.holiday == True].head(10))  # testing to see if Fed holidays are working
+    df.to_csv(p)
 
 if __name__ == '__main__':
-    create_calendar(start, end)
-    # print(args.startdate)
-    # print(args.enddate)
+    create_calendar(startdate, enddate)
 
