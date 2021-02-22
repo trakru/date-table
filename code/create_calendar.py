@@ -3,8 +3,9 @@ import pandas as pd
 import argparse
 from pandas.tseries.holiday import USFederalHolidayCalendar as holiday_calendar
 from pathlib import Path
+import pyarrow
 
-p = Path(Path().resolve().parent, "data", "date-table.csv")
+p = Path(Path().resolve().parent, "data", "date-table.parquet")
 
 parser = argparse.ArgumentParser(description='Provide Start & End dates')
 
@@ -40,8 +41,13 @@ def create_calendar(start,end):
     df['quarter'] = df.timestampID.dt.quarter
     df['holiday'] = df.caldate.isin(holidays)
     df['weekend'] = df.dayofweek.isin(weekends)
+    # df.reset_index(drop=True)
     # print(df[df.holiday == True].head(10))  # testing to see if Fed holidays are working
-    df.to_csv(p)
+    # df.to_csv(p)
+    df.to_parquet(p, compression='snappy')
+    # print(df.head(5))
+    
+    # print(df.columns)
 
 if __name__ == '__main__':
     create_calendar(startdate, enddate)
